@@ -9,12 +9,7 @@ function extend(base) {
 	return base;
 }
 
-var regExpPattern= new RegExp(
-	'(\\' + [
-		'/', '.', '*', '+', '?', '|',
-		'(', ')', '[', ']', '{', '}', '\\'
-		].join('|\\') + ')', 'g'
-);
+var regExpPattern = null;
 
 function trim(text, seq) {
 	var pattern = seq.replace(regExpPattern, '\\$1');
@@ -76,6 +71,7 @@ var accents = {
 	'Ö': 'O',
 	'Ř': 'R',
 	'Š': 'S',
+	'Ś': 'S',
 	'Ť': 'T',
 	'Ø': 'OE',
 	'Ù': 'U',
@@ -93,6 +89,7 @@ var accents = {
 	'ä': 'a',
 	'å': 'aa',
 	'æ': 'ae',
+	'ą': 'a',
 	'ç': 'c',
 	'č': 'c',
 	'ď': 'd',
@@ -229,7 +226,22 @@ exports.create = function(options) {
 		nonPrintable:"_",
 		trim:false,
 		extendString:false,
-		failureOutput:"non-printable"
+		failureOutput:"non-printable",
+		replaceCharacters: [
+			'/',
+			'.',
+			'*',
+			'+',
+			'?',
+			'|',
+			'(',
+			')',
+			'[',
+			']',
+			'{',
+			'}',
+			'\\'
+		]
 	}, options);
 
 	var urlify = function(string, options, cb) {
@@ -249,6 +261,11 @@ exports.create = function(options) {
 		}
 
 		options = extend({}, defaults, options);
+
+		regExpPattern = new RegExp(
+			'(\\' + options.replaceCharacters.join('|\\') + ')', 'g'
+		)
+
 		if(options.szToSs === true)
 			string = apply(string, szToSs);
 		if(options.addEToUmlauts === true)
